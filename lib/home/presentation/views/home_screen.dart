@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:contacts_app/contacts_page/presentation/views/contacts_page.dart';
+import 'package:contacts_app/contacts_page/presentation/views/contacts_grid_view.dart';
 import 'package:contacts_app/home/presentation/views/widgets/home_body_widget.dart';
 import 'package:contacts_app/home/presentation/views/widgets/user_details_widget.dart';
 import 'package:contacts_app/utils/colors.dart';
@@ -9,6 +9,8 @@ import 'package:contacts_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
+
+import '../../../contacts_page/presentation/views/widgets/contact_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController phoneController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   File? selectedImage;
+  List<ContactModel> contacts = [];
 
   Future<void> pickFromGallery() async {
     final XFile? image = await _picker.pickImage(
@@ -50,21 +53,54 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         backgroundColor: AppColors.darkBlue,
         appBar: buildAppBar(),
-        floatingActionButton: SizedBox(
-          width: 65,
-          height: 65,
-          child: FloatingActionButton(
-            backgroundColor: AppColors.gold,
-            onPressed: () {
-              buildShowModalBottomSheet(context);
-            },
-            child: const Icon(
-              Icons.add,
-              size: 20,
+        floatingActionButton: Stack(children: [
+          if(contacts.length<=6)
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: SizedBox(
+              width: 65,
+              height: 65,
+              child: FloatingActionButton(
+                backgroundColor: AppColors.gold,
+                onPressed: () async {
+                  final result = await buildShowModalBottomSheet(context);
+
+                  if (result != null) {
+                    setState(() {
+                      contacts.add(result);
+                    });
+                  }
+                },
+                child: const Icon(
+                  Icons.add,
+                  size: 20,
+                ),
+              ),
             ),
           ),
+          if (contacts.isNotEmpty)
+            Positioned(
+              bottom: 90,
+              right: 16,
+              child: SizedBox(
+                width: 65,
+                height: 65,
+                child: FloatingActionButton(
+                  backgroundColor: AppColors.red,
+                  onPressed: () {
+                    setState(() {
+                      contacts.removeLast();
+                    });
+                  },
+                  child: const Icon(Icons.delete, size: 20,color: AppColors.white,),
+                ),
+              ),
+            ),
+        ]),
+        body: HomeBodyWidget(
+          contacts: contacts,
         ),
-        body: const HomeBodyWidget(),
       ),
     );
   }
@@ -85,8 +121,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  buildShowModalBottomSheet(BuildContext context) {
-    return showModalBottomSheet(
+  Future<ContactModel?> buildShowModalBottomSheet(BuildContext context) {
+    return showModalBottomSheet<ContactModel>(
       backgroundColor: AppColors.lightBlue,
       context: context,
       isScrollControlled: true,
@@ -181,10 +217,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           textInputType: TextInputType.phone,
                         ),
                         const SizedBox(height: 14),
-                         InkWell(onTap: (){
-                           Navigator.pushReplacementNamed(context, ContactsPage.routeName);
-                         },
-                            child: const CustomElevatedButton(title: 'Enter user')),
+                        InkWell(
+                            onTap: () {
+                              final contact = ContactModel(
+                                userName: nameController.text,
+                                email: emailController.text,
+                                phoneNumber: phoneController.text,
+                                image: selectedImage!.path,
+                              );
+                              Navigator.pop(context, contact);
+                            },
+                            child: const CustomElevatedButton(
+                                title: 'Enter user')),
                       ],
                     ),
                   ),
