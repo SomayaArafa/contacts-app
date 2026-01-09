@@ -41,6 +41,6 @@ class HomeBodyWidget extends StatelessWidget {
         ),
       );
     }
-    return ContactsGridView(contacts: contacts,);
+    return ContactsGridView(contacts: contacts);
   }
 }

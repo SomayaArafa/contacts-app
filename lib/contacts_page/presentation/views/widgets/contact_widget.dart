@@ -44,7 +44,7 @@ class ContactWidget extends StatelessWidget {
                   ),
                   Align(alignment: Alignment.bottomLeft,
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
+                      padding: const EdgeInsets.only(bottom: 8.0,left: 6.0),
                       child: Container(
                         width: 84,
                         height: 33,
