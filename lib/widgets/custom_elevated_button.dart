@@ -9,6 +9,8 @@ class CustomElevatedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(onPressed: onPressed,style:ElevatedButton.styleFrom(
       backgroundColor: AppColors.gold,
+      disabledBackgroundColor: AppColors.gold,
+
       foregroundColor: AppColors.darkBlue,
       padding: const EdgeInsets.all(16),
       shape: RoundedRectangleBorder(
@@ -24,6 +26,7 @@ class CustomElevatedButton extends StatelessWidget {
       child:  Center(
       child: Text(
      title,
+      style: const TextStyle(color: AppColors.lightBlue),
       textAlign: TextAlign.center,
     ),
     ));

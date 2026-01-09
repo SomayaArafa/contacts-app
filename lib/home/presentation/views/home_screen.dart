@@ -1,60 +1,195 @@
+import 'dart:io';
+
+import 'package:contacts_app/home/presentation/views/widgets/home_body_widget.dart';
+import 'package:contacts_app/home/presentation/views/widgets/user_details_widget.dart';
 import 'package:contacts_app/utils/colors.dart';
+import 'package:contacts_app/widgets/custom_elevated_button.dart';
+import 'package:contacts_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+  File? selectedImage;
+
+  Future<void> pickFromGallery() async {
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (image != null) {
+      setState(() {
+        selectedImage = File(image.path);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.darkBlue,
-        appBar: AppBar(
-          backgroundColor: AppColors.darkBlue,
-          leadingWidth: 200,
-          toolbarHeight: 100,
-          title: Align(
-            alignment: Alignment.bottomLeft,
-            child: Image.asset(
-              'assets/images/Group 6.png',
-              height: 60,
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
+        appBar: buildAppBar(),
         floatingActionButton: SizedBox(
           width: 65,
           height: 65,
           child: FloatingActionButton(
-            onPressed: () {},
             backgroundColor: AppColors.gold,
+            onPressed: () {
+              buildShowModalBottomSheet(context);
+            },
             child: const Icon(
               Icons.add,
-              color: AppColors.darkBlue,
-              size: 26,
+              size: 20,
             ),
           ),
         ),
-        body: Column(crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            const SizedBox(height: 80,),
-            Lottie.asset(
-              'assets/animations/empty_list.json',
-              width: 300,
-              height: 300,
-              fit: BoxFit.contain,
-            ),
-            const Center(
-              child: Text(
-                'There is No Contacts Added Here',
-                style: TextStyle(color: AppColors.gold, fontSize: 20,fontWeight: FontWeight.bold),
-              ),
-            )
-          ],
+        body: const HomeBodyWidget(),
+      ),
+    );
+  }
+
+  AppBar buildAppBar() {
+    return AppBar(
+      backgroundColor: AppColors.darkBlue,
+      leadingWidth: 200,
+      toolbarHeight: 100,
+      title: Align(
+        alignment: Alignment.bottomLeft,
+        child: Image.asset(
+          'assets/images/Group 6.png',
+          height: 60,
+          fit: BoxFit.contain,
         ),
       ),
+    );
+  }
+
+  buildShowModalBottomSheet(BuildContext context) {
+    return showModalBottomSheet(
+      backgroundColor: AppColors.lightBlue,
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: FractionallySizedBox(
+                heightFactor: 0.5,
+                widthFactor: 1,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  final XFile? image = await _picker.pickImage(
+                                    source: ImageSource.gallery,
+                                  );
+
+                                  if (image != null) {
+                                    setModalState(() {
+                                      selectedImage = File(image.path);
+                                    });
+                                  }
+                                },
+                                child: Container(
+                                  height: 120,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: AppColors.gold),
+                                  ),
+                                  child: selectedImage == null
+                                      ? Lottie.asset(
+                                          'assets/animations/image_picker.json',
+                                          fit: BoxFit.contain,
+                                        )
+                                      : ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          child: Image.file(
+                                            selectedImage!,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              flex: 2,
+                              child: UserDetailsWidget(
+                                  nameController: nameController,
+                                  emailController: emailController,
+                                  phoneController: phoneController),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        CustomTextField(
+                          controller: nameController,
+                          hintText: 'Enter User Name',
+                          onChanged: (_) => setModalState(() {}),
+                          textInputType: TextInputType.name,
+                        ),
+                        const SizedBox(height: 8),
+                        CustomTextField(
+                          controller: emailController,
+                          hintText: 'Enter User Email',
+                          onChanged: (_) => setModalState(() {}),
+                          textInputType: TextInputType.emailAddress,
+                        ),
+                        const SizedBox(height: 8),
+                        CustomTextField(
+                          controller: phoneController,
+                          hintText: 'Enter User Phone',
+                          onChanged: (_) => setModalState(() {}),
+                          textInputType: TextInputType.phone,
+                        ),
+                        const SizedBox(height: 14),
+                        const CustomElevatedButton(title: 'Enter user'),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
