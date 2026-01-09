@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:contacts_app/contacts_page/presentation/views/contacts_page.dart';
 import 'package:contacts_app/home/presentation/views/widgets/home_body_widget.dart';
 import 'package:contacts_app/home/presentation/views/widgets/user_details_widget.dart';
 import 'package:contacts_app/utils/colors.dart';
@@ -180,7 +181,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           textInputType: TextInputType.phone,
                         ),
                         const SizedBox(height: 14),
-                        const CustomElevatedButton(title: 'Enter user'),
+                         InkWell(onTap: (){
+                           Navigator.pushReplacementNamed(context, ContactsPage.routeName);
+                         },
+                            child: const CustomElevatedButton(title: 'Enter user')),
                       ],
                     ),
                   ),
