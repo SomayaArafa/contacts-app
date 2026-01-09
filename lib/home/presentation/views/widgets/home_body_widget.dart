@@ -5,7 +5,7 @@ import '../../../../contacts_page/presentation/views/contacts_grid_view.dart';
 import '../../../../contacts_page/presentation/views/widgets/contact_model.dart';
 import '../../../../utils/colors.dart';
 
-class HomeBodyWidget extends StatefulWidget {
+class HomeBodyWidget extends StatelessWidget {
   const HomeBodyWidget({
     super.key,
     required this.contacts,
@@ -14,13 +14,8 @@ class HomeBodyWidget extends StatefulWidget {
   final List<ContactModel> contacts;
 
   @override
-  State<HomeBodyWidget> createState() => _HomeBodyWidgetState();
-}
-
-class _HomeBodyWidgetState extends State<HomeBodyWidget> {
-  @override
   Widget build(BuildContext context) {
-    if (widget.contacts.isEmpty) {
+    if (contacts.isEmpty) {
       return Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -46,6 +41,6 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
         ),
       );
     }
-    return ContactsGridView(contacts: widget.contacts,);
+    return ContactsGridView(contacts: contacts,);
   }
 }
